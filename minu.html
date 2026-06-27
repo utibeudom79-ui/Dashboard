@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu / Foods | FoodieAdmin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="minu.css">
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="logo">
+      <i class="fa-solid fa-utensils"></i>
+      <span>FoodieAdmin</span>
+    </div>
+    <nav>
+      <a href="dash.html"><i class="fa-solid fa-house"></i><span>Dashboard</span></a>
+      <a href="minu.html" class="active"><i class="fa-solid fa-bowl-food"></i><span>Menu / Foods</span></a>
+      <a href="oda.html"><i class="fa-solid fa-clipboard-list"></i><span>Orders</span></a>
+      <a href="care.html"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
+      <a href="cus.html"><i class="fa-solid fa-users"></i><span>Customers</span></a>
+      <a href="ana.html"><i class="fa-solid fa-chart-line"></i><span>Analytics</span></a>
+    </nav>
+    <a class="logout" id="logoutBtn">
+      <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+    </a>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+      <i class="fa-solid fa-bars" id="menuToggle"></i>
+      <h2>Menu / Foods</h2>
+      <div class="nav-right">
+        <i class="fa-solid fa-moon" id="themeToggle"></i>
+        <div class="notif">
+          <i class="fa-solid fa-bell"></i>
+          <span class="badge">0</span>
+        </div>
+        <div class="admin">
+          <i class="fa-solid fa-user-circle"></i>
+          <span id="adminEmail">Admin</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- TOP BAR -->
+      <div class="page-topbar">
+        <div class="search-wrap">
+          <i class="fa-solid fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search foods...">
+        </div>
+        <div class="filter-wrap">
+          <select id="categoryFilter">
+            <option value="">All Categories</option>
+          </select>
+          <select id="statusFilter">
+            <option value="">All Status</option>
+            <option value="available">Available</option>
+            <option value="unavailable">Unavailable</option>
+          </select>
+        </div>
+        <button class="add-btn" id="openAddModal">
+          <i class="fa-solid fa-plus"></i> Add Food
+        </button>
+      </div>
+
+      <!-- STATS ROW -->
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <span class="mini-label">Total Foods</span>
+          <span class="mini-value" id="totalFoods">0</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-label">Available</span>
+          <span class="mini-value green" id="availableFoods">0</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-label">Unavailable</span>
+          <span class="mini-value red" id="unavailableFoods">0</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-label">Categories</span>
+          <span class="mini-value" id="totalCats">0</span>
+        </div>
+      </div>
+
+      <!-- FOODS GRID -->
+      <div class="foods-grid" id="foodsGrid">
+        <div class="loading-state">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <p>Loading foods...</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ADD/EDIT MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add New Food</h3>
+        <i class="fa-solid fa-xmark" id="closeModal"></i>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="foodId">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Food Name *</label>
+            <input type="text" id="foodName" placeholder="e.g. Jollof Rice">
+          </div>
+          <div class="form-group">
+            <label>Price (₦) *</label>
+            <input type="number" id="foodPrice" placeholder="e.g. 2500">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="foodCategory">
+              <option value="">Select category</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Emoji</label>
+            <input type="text" id="foodEmoji" placeholder="e.g. 🍚">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="foodDesc" placeholder="Describe this food..." rows="3"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Image URL (optional)</label>
+            <input type="text" id="foodImage" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="foodStatus">
+              <option value="available">Available</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="formError" class="form-error" style="display:none"></div>
+
+        <div class="modal-actions">
+          <button class="cancel-btn" id="cancelModal">Cancel</button>
+          <button class="save-btn" id="saveFood">
+            <span id="saveBtnText">Save Food</span>
+            <i class="fa-solid fa-spinner fa-spin" id="saveSpinner" style="display:none"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRM MODAL -->
+  <div class="modal-overlay" id="deleteOverlay">
+    <div class="modal small-modal">
+      <div class="modal-header">
+        <h3>Delete Food</h3>
+        <i class="fa-solid fa-xmark" id="closeDelete"></i>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-soft);margin-bottom:20px;">Are you sure you want to delete <strong id="deleteFoodName"></strong>? This cannot be undone.</p>
+        <div class="modal-actions">
+          <button class="cancel-btn" id="cancelDelete">Cancel</button>
+          <button class="delete-btn" id="confirmDelete">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZYkic-Ny5ekKpCOjXyfkzWl5gg7qCXFg",
+      authDomain: "adminboard-3e112.firebaseapp.com",
+      projectId: "adminboard-3e112",
+      storageBucket: "adminboard-3e112.firebasestorage.app",
+      messagingSenderId: "578529087086",
+      appId: "1:578529087086:web:d8329a705e506257e4607f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let allFoods = [];
+    let allCategories = [];
+    let deleteTargetId = null;
+
+    // Auth check
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = 'log.html';
+      } else {
+        document.getElementById('adminEmail').textContent = user.email.split('@')[0];
+        loadCategories();
+        loadFoods();
+      }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'log.html';
+    });
+
+    // Sidebar & theme
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      const icon = document.getElementById('themeToggle');
+      icon.classList.toggle('fa-moon');
+      icon.classList.toggle('fa-sun');
+    });
+
+    // Load categories
+    async function loadCategories() {
+      const snap = await getDocs(collection(db, 'categories'));
+      allCategories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      document.getElementById('totalCats').textContent = allCategories.length;
+
+      const catFilter = document.getElementById('categoryFilter');
+      const foodCat = document.getElementById('foodCategory');
+
+      allCategories.forEach(cat => {
+        catFilter.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+        foodCat.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+      });
+    }
+
+    // Load foods
+    async function loadFoods() {
+      const snap = await getDocs(collection(db, 'foods'));
+      allFoods = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderFoods(allFoods);
+      updateStats();
+    }
+
+    function updateStats() {
+      document.getElementById('totalFoods').textContent = allFoods.length;
+      document.getElementById('availableFoods').textContent = allFoods.filter(f => f.status === 'available').length;
+      document.getElementById('unavailableFoods').textContent = allFoods.filter(f => f.status === 'unavailable').length;
+    }
+
+    function renderFoods(foods) {
+      const grid = document.getElementById('foodsGrid');
+      if (foods.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-bowl-food"></i>
+            <p>No foods found</p>
+            <small>Click "Add Food" to get started</small>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = foods.map(f => `
+        <div class="food-card">
+          <div class="food-card-img">
+            ${f.imageUrl ? `<img src="${f.imageUrl}" alt="${f.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
+            <div class="food-card-emoji" style="${f.imageUrl ? 'display:none' : 'display:flex'}">${f.emoji || '🍽️'}</div>
+            <span class="food-status-badge ${f.status || 'available'}">${f.status || 'available'}</span>
+          </div>
+          <div class="food-card-body">
+            <h4 class="food-card-name">${f.name}</h4>
+            <p class="food-card-cat">${f.category || 'Uncategorized'}</p>
+            <p class="food-card-desc">${f.description || ''}</p>
+            <div class="food-card-footer">
+              <span class="food-card-price">₦${(f.price || 0).toLocaleString()}</span>
+              <div class="food-card-actions">
+                <button class="edit-btn" onclick="editFood('${f.id}')">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="del-btn" onclick="deleteFood('${f.id}', '${f.name}')">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>`).join('');
+    }
+
+    // Search & filter
+    document.getElementById('searchInput').addEventListener('input', filterFoods);
+    document.getElementById('categoryFilter').addEventListener('change', filterFoods);
+    document.getElementById('statusFilter').addEventListener('change', filterFoods);
+
+    function filterFoods() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const cat = document.getElementById('categoryFilter').value;
+      const status = document.getElementById('statusFilter').value;
+
+      const filtered = allFoods.filter(f => {
+        const matchSearch = f.name?.toLowerCase().includes(search);
+        const matchCat = cat ? f.category === cat : true;
+        const matchStatus = status ? f.status === status : true;
+        return matchSearch && matchCat && matchStatus;
+      });
+
+      renderFoods(filtered);
+    }
+
+    // Modal open/close
+    document.getElementById('openAddModal').addEventListener('click', () => {
+      document.getElementById('modalTitle').textContent = 'Add New Food';
+      document.getElementById('saveBtnText').textContent = 'Save Food';
+      clearForm();
+      document.getElementById('modalOverlay').classList.add('show');
+    });
+
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    document.getElementById('cancelModal').addEventListener('click', closeModal);
+
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    });
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('show');
+      clearForm();
+    }
+
+    function clearForm() {
+      document.getElementById('foodId').value = '';
+      document.getElementById('foodName').value = '';
+      document.getElementById('foodPrice').value = '';
+      document.getElementById('foodCategory').value = '';
+      document.getElementById('foodEmoji').value = '';
+      document.getElementById('foodDesc').value = '';
+      document.getElementById('foodImage').value = '';
+      document.getElementById('foodStatus').value = 'available';
+      document.getElementById('formError').style.display = 'none';
+    }
+
+    // Save food
+    document.getElementById('saveFood').addEventListener('click', async () => {
+      const id = document.getElementById('foodId').value;
+      const name = document.getElementById('foodName').value.trim();
+      const price = parseFloat(document.getElementById('foodPrice').value);
+      const category = document.getElementById('foodCategory').value;
+      const emoji = document.getElementById('foodEmoji').value.trim();
+      const description = document.getElementById('foodDesc').value.trim();
+      const imageUrl = document.getElementById('foodImage').value.trim();
+      const status = document.getElementById('foodStatus').value;
+      const errorEl = document.getElementById('formError');
+
+      if (!name || !price || !category) {
+        errorEl.textContent = 'Please fill in name, price and category.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      document.getElementById('saveBtnText').textContent = 'Saving...';
+      document.getElementById('saveSpinner').style.display = 'inline-block';
+      document.getElementById('saveFood').disabled = true;
+
+      try {
+        const foodData = { name, price, category, emoji, description, imageUrl, status, updatedAt: serverTimestamp() };
+
+        if (id) {
+          await updateDoc(doc(db, 'foods', id), foodData);
+        } else {
+          foodData.createdAt = serverTimestamp();
+          foodData.orders = 0;
+          foodData.revenue = 0;
+          await addDoc(collection(db, 'foods'), foodData);
+        }
+
+        closeModal();
+        await loadFoods();
+      } catch (err) {
+        errorEl.textContent = 'Error saving food: ' + err.message;
+        errorEl.style.display = 'block';
+      } finally {
+        document.getElementById('saveBtnText').textContent = 'Save Food';
+        document.getElementById('saveSpinner').style.display = 'none';
+        document.getElementById('saveFood').disabled = false;
+      }
+    });
+
+    // Edit food
+    window.editFood = function(id) {
+      const f = allFoods.find(f => f.id === id);
+      if (!f) return;
+      document.getElementById('modalTitle').textContent = 'Edit Food';
+      document.getElementById('saveBtnText').textContent = 'Update Food';
+      document.getElementById('foodId').value = f.id;
+      document.getElementById('foodName').value = f.name || '';
+      document.getElementById('foodPrice').value = f.price || '';
+      document.getElementById('foodCategory').value = f.category || '';
+      document.getElementById('foodEmoji').value = f.emoji || '';
+      document.getElementById('foodDesc').value = f.description || '';
+      document.getElementById('foodImage').value = f.imageUrl || '';
+      document.getElementById('foodStatus').value = f.status || 'available';
+      document.getElementById('modalOverlay').classList.add('show');
+    };
+
+    // Delete food
+    window.deleteFood = function(id, name) {
+      deleteTargetId = id;
+      document.getElementById('deleteFoodName').textContent = name;
+      document.getElementById('deleteOverlay').classList.add('show');
+    };
+
+    document.getElementById('closeDelete').addEventListener('click', () => {
+      document.getElementById('deleteOverlay').classList.remove('show');
+    });
+
+    document.getElementById('cancelDelete').addEventListener('click', () => {
+      document.getElementById('deleteOverlay').classList.remove('show');
+    });
+
+    document.getElementById('confirmDelete').addEventListener('click', async () => {
+      if (!deleteTargetId) return;
+      try {
+        await deleteDoc(doc(db, 'foods', deleteTargetId));
+        document.getElementById('deleteOverlay').classList.remove('show');
+        await loadFoods();
+      } catch (err) {
+        alert('Error deleting: ' + err.message);
+      }
+    });
+  </script>
+
+</body>
+</html>

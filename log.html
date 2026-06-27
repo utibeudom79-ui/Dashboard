@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | FoodieAdmin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="log.css">
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-card">
+
+      <div class="login-logo">
+        <i class="fa-solid fa-utensils"></i>
+        <span>FoodieAdmin</span>
+      </div>
+
+      <h2>Welcome back</h2>
+      <p class="login-sub">Sign in to your admin account</p>
+
+      <div id="errorMsg" class="error-msg" style="display:none"></div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-envelope"></i>
+          <input type="email" id="email" placeholder="admin@example.com"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" id="password" placeholder="Enter your password"/>
+          <i class="fa-solid fa-eye toggle-pw" id="togglePw"></i>
+        </div>
+      </div>
+
+      <button class="login-btn" id="loginBtn">
+        <span id="btnText">Sign In</span>
+        <i class="fa-solid fa-spinner fa-spin" id="btnSpinner" style="display:none"></i>
+      </button>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZYkic-Ny5ekKpCOjXyfkzWl5gg7qCXFg",
+      authDomain: "adminboard-3e112.firebaseapp.com",
+      projectId: "adminboard-3e112",
+      storageBucket: "adminboard-3e112.firebasestorage.app",
+      messagingSenderId: "578529087086",
+      appId: "1:578529087086:web:d8329a705e506257e4607f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById('togglePw').addEventListener('click', () => {
+      const pw = document.getElementById('password');
+      const icon = document.getElementById('togglePw');
+      if (pw.type === 'password') {
+        pw.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        pw.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      const btnText = document.getElementById('btnText');
+      const btnSpinner = document.getElementById('btnSpinner');
+
+      errorMsg.style.display = 'none';
+
+      if (!email || !password) {
+        errorMsg.textContent = 'Please fill in all fields.';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      btnText.textContent = 'Signing in...';
+      btnSpinner.style.display = 'inline-block';
+      document.getElementById('loginBtn').disabled = true;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = 'dash.html';
+      } catch (error) {
+        let msg = 'Login failed. Try again.';
+        if (error.code === 'auth/user-not-found') msg = 'No account found with this email.';
+        if (error.code === 'auth/wrong-password') msg = 'Incorrect password.';
+        if (error.code === 'auth/invalid-email') msg = 'Invalid email address.';
+        if (error.code === 'auth/invalid-credential') msg = 'Wrong email or password.';
+        if (error.code === 'auth/too-many-requests') msg = 'Too many attempts. Try later.';
+        errorMsg.textContent = msg;
+        errorMsg.style.display = 'block';
+      } finally {
+        btnText.textContent = 'Sign In';
+        btnSpinner.style.display = 'none';
+        document.getElementById('loginBtn').disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>

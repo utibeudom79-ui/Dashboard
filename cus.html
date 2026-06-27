@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers | FoodieAdmin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="cus.css">
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="logo">
+      <i class="fa-solid fa-utensils"></i>
+      <span>FoodieAdmin</span>
+    </div>
+    <nav>
+      <a href="dash.html"><i class="fa-solid fa-house"></i><span>Dashboard</span></a>
+      <a href="minu.html"><i class="fa-solid fa-bowl-food"></i><span>Menu / Foods</span></a>
+      <a href="oda.html"><i class="fa-solid fa-clipboard-list"></i><span>Orders</span></a>
+      <a href="care.html"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
+      <a href="cus.html" class="active"><i class="fa-solid fa-users"></i><span>Customers</span></a>
+      <a href="ana.html"><i class="fa-solid fa-chart-line"></i><span>Analytics</span></a>
+    </nav>
+    <a class="logout" id="logoutBtn">
+      <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+    </a>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+      <i class="fa-solid fa-bars" id="menuToggle"></i>
+      <h2>Customers</h2>
+      <div class="nav-right">
+        <i class="fa-solid fa-moon" id="themeToggle"></i>
+        <div class="notif">
+          <i class="fa-solid fa-bell"></i>
+          <span class="badge">0</span>
+        </div>
+        <div class="admin">
+          <i class="fa-solid fa-user-circle"></i>
+          <span id="adminEmail">Admin</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- TOPBAR -->
+      <div class="page-topbar">
+        <div class="search-wrap">
+          <i class="fa-solid fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search customers...">
+        </div>
+        <div class="filter-wrap">
+          <select id="sortFilter">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="most-orders">Most Orders</option>
+            <option value="most-spent">Most Spent</option>
+          </select>
+        </div>
+        <button class="add-btn" id="openAddModal">
+          <i class="fa-solid fa-plus"></i> Add Customer
+        </button>
+      </div>
+
+      <!-- MINI STATS -->
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <span class="mini-label">Total Customers</span>
+          <span class="mini-value" id="totalCustomers">0</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-label">New This Month</span>
+          <span class="mini-value green" id="newCustomers">0</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-label">Total Orders</span>
+          <span class="mini-value blue" id="totalOrders">0</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-label">Total Revenue</span>
+          <span class="mini-value" id="totalRevenue">₦0</span>
+        </div>
+      </div>
+
+      <!-- CUSTOMERS TABLE -->
+      <div class="table-card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Orders</th>
+                <th>Total Spent</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="customersBody">
+              <tr><td colspan="8" class="loading-cell">Loading customers...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ADD/EDIT MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add Customer</h3>
+        <i class="fa-solid fa-xmark" id="closeModal"></i>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="cusId">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="cusName" placeholder="e.g. John Doe">
+          </div>
+          <div class="form-group">
+            <label>Phone Number *</label>
+            <input type="text" id="cusPhone" placeholder="e.g. 08012345678">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="cusEmail" placeholder="e.g. john@email.com">
+          </div>
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="date" id="cusDob">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="cusAddress" placeholder="e.g. 12 Lagos Street, Abuja">
+        </div>
+
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="cusNotes" placeholder="Any notes about this customer..." rows="2"></textarea>
+        </div>
+
+        <div id="formError" class="form-error" style="display:none"></div>
+
+        <div class="modal-actions">
+          <button class="cancel-btn" id="cancelModal">Cancel</button>
+          <button class="save-btn" id="saveCus">
+            <span id="saveBtnText">Save Customer</span>
+            <i class="fa-solid fa-spinner fa-spin" id="saveSpinner" style="display:none"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW MODAL -->
+  <div class="modal-overlay" id="viewOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Customer Details</h3>
+        <i class="fa-solid fa-xmark" id="closeView"></i>
+      </div>
+      <div class="modal-body" id="viewBody"></div>
+    </div>
+  </div>
+
+  <!-- DELETE MODAL -->
+  <div class="modal-overlay" id="deleteOverlay">
+    <div class="modal small-modal">
+      <div class="modal-header">
+        <h3>Delete Customer</h3>
+        <i class="fa-solid fa-xmark" id="closeDelete"></i>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-soft);margin-bottom:20px;">Are you sure you want to delete <strong id="deleteCusName"></strong>? This cannot be undone.</p>
+        <div class="modal-actions">
+          <button class="cancel-btn" id="cancelDelete">Cancel</button>
+          <button class="delete-btn" id="confirmDelete">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZYkic-Ny5ekKpCOjXyfkzWl5gg7qCXFg",
+      authDomain: "adminboard-3e112.firebaseapp.com",
+      projectId: "adminboard-3e112",
+      storageBucket: "adminboard-3e112.firebasestorage.app",
+      messagingSenderId: "578529087086",
+      appId: "1:578529087086:web:d8329a705e506257e4607f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let allCustomers = [];
+    let allOrders = [];
+    let deleteTargetId = null;
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = 'log.html';
+      } else {
+        document.getElementById('adminEmail').textContent = user.email.split('@')[0];
+        loadData();
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'log.html';
+    });
+
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      const icon = document.getElementById('themeToggle');
+      icon.classList.toggle('fa-moon');
+      icon.classList.toggle('fa-sun');
+    });
+
+    async function loadData() {
+      try {
+        const [cusSnap, ordSnap] = await Promise.all([
+          getDocs(collection(db, 'customers')),
+          getDocs(collection(db, 'orders'))
+        ]);
+        allCustomers = cusSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        allOrders = ordSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        updateStats();
+        renderCustomers(allCustomers);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function updateStats() {
+      const now = new Date();
+      const thisMonth = allCustomers.filter(c => {
+        if (!c.createdAt) return false;
+        const d = c.createdAt.toDate ? c.createdAt.toDate() : new Date(c.createdAt);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      }).length;
+
+      const totalOrders = allOrders.length;
+      const totalRevenue = allOrders.reduce((s, o) => s + (o.total || 0), 0);
+
+      document.getElementById('totalCustomers').textContent = allCustomers.length;
+      document.getElementById('newCustomers').textContent = thisMonth;
+      document.getElementById('totalOrders').textContent = totalOrders;
+      document.getElementById('totalRevenue').textContent = '₦' + totalRevenue.toLocaleString();
+    }
+
+    function getCustomerOrders(name) {
+      return allOrders.filter(o => o.customerName?.toLowerCase() === name?.toLowerCase());
+    }
+
+    function renderCustomers(customers) {
+      const tbody = document.getElementById('customersBody');
+      if (customers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="loading-cell">No customers found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = customers.map(c => {
+        const orders = getCustomerOrders(c.name);
+        const spent = orders.reduce((s, o) => s + (o.total || 0), 0);
+        const joined = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' }) : '--';
+        const initials = c.name ? c.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : '??';
+        const colors = ['#E63946', '#2563EB', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'];
+        const color = colors[c.name?.charCodeAt(0) % colors.length] || '#E63946';
+
+        return `
+          <tr>
+            <td>
+              <div class="cus-name-cell">
+                <div class="cus-avatar" style="background:${color}20;color:${color}">${initials}</div>
+                <div>
+                  <div class="cus-name">${c.name}</div>
+                  <div class="cus-sub">${c.email || ''}</div>
+                </div>
+              </div>
+            </td>
+            <td>${c.email || '--'}</td>
+            <td>${c.phone || '--'}</td>
+            <td class="address-cell">${c.address || '--'}</td>
+            <td><span class="orders-count">${orders.length}</span></td>
+            <td><strong>₦${spent.toLocaleString()}</strong></td>
+            <td>${joined}</td>
+            <td>
+              <div class="action-btns">
+                <button class="icon-btn view" title="View" onclick="viewCustomer('${c.id}')"><i class="fa-solid fa-eye"></i></button>
+                <button class="icon-btn edit" title="Edit" onclick="editCustomer('${c.id}')"><i class="fa-solid fa-pen"></i></button>
+                <button class="icon-btn del" title="Delete" onclick="deleteCustomer('${c.id}', '${c.name}')"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    // Search & sort
+    document.getElementById('searchInput').addEventListener('input', filterCustomers);
+    document.getElementById('sortFilter').addEventListener('change', filterCustomers);
+
+    function filterCustomers() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const sort = document.getElementById('sortFilter').value;
+
+      let filtered = allCustomers.filter(c =>
+        c.name?.toLowerCase().includes(search) ||
+        c.phone?.includes(search) ||
+        c.email?.toLowerCase().includes(search)
+      );
+
+      filtered.sort((a, b) => {
+        if (sort === 'newest') return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+        if (sort === 'oldest') return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+        if (sort === 'most-orders') return getCustomerOrders(b.name).length - getCustomerOrders(a.name).length;
+        if (sort === 'most-spent') {
+          const spentA = getCustomerOrders(a.name).reduce((s, o) => s + (o.total || 0), 0);
+          const spentB = getCustomerOrders(b.name).reduce((s, o) => s + (o.total || 0), 0);
+          return spentB - spentA;
+        }
+        return 0;
+      });
+
+      renderCustomers(filtered);
+    }
+
+    // View customer
+    window.viewCustomer = function(id) {
+      const c = allCustomers.find(c => c.id === id);
+      if (!c) return;
+      const orders = getCustomerOrders(c.name);
+      const spent = orders.reduce((s, o) => s + (o.total || 0), 0);
+      const joined = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString() : '--';
+      const initials = c.name ? c.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) : '??';
+
+      document.getElementById('viewBody').innerHTML = `
+        <div class="cus-profile">
+          <div class="cus-avatar-lg">${initials}</div>
+          <div>
+            <h3>${c.name}</h3>
+            <p>${c.email || 'No email'}</p>
+          </div>
+        </div>
+        <div class="view-grid">
+          <div class="view-item"><label>Phone</label><span>${c.phone || '--'}</span></div>
+          <div class="view-item"><label>Date of Birth</label><span>${c.dob || '--'}</span></div>
+          <div class="view-item full"><label>Address</label><span>${c.address || '--'}</span></div>
+          <div class="view-item"><label>Total Orders</label><span><strong>${orders.length}</strong></span></div>
+          <div class="view-item"><label>Total Spent</label><span><strong>₦${spent.toLocaleString()}</strong></span></div>
+          <div class="view-item"><label>Joined</label><span>${joined}</span></div>
+          <div class="view-item full"><label>Notes</label><span>${c.notes || '--'}</span></div>
+        </div>
+        ${orders.length > 0 ? `
+          <div style="margin-top:20px;">
+            <h4 style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px;">Recent Orders</h4>
+            ${orders.slice(0,3).map(o => `
+              <div class="order-row">
+                <span>#${o.id.slice(0,6).toUpperCase()}</span>
+                <span>${o.items || '--'}</span>
+                <span><strong>₦${(o.total||0).toLocaleString()}</strong></span>
+                <span class="badge-status ${o.status}">${o.status}</span>
+              </div>`).join('')}
+          </div>` : ''}`;
+      document.getElementById('viewOverlay').classList.add('show');
+    };
+
+    // Modal open
+    document.getElementById('openAddModal').addEventListener('click', () => {
+      document.getElementById('modalTitle').textContent = 'Add Customer';
+      document.getElementById('saveBtnText').textContent = 'Save Customer';
+      clearForm();
+      document.getElementById('modalOverlay').classList.add('show');
+    });
+
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    document.getElementById('cancelModal').addEventListener('click', closeModal);
+    document.getElementById('closeView').addEventListener('click', () => document.getElementById('viewOverlay').classList.remove('show'));
+    document.getElementById('closeDelete').addEventListener('click', () => document.getElementById('deleteOverlay').classList.remove('show'));
+    document.getElementById('cancelDelete').addEventListener('click', () => document.getElementById('deleteOverlay').classList.remove('show'));
+
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    });
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('show');
+      clearForm();
+    }
+
+    function clearForm() {
+      ['cusId','cusName','cusPhone','cusEmail','cusDob','cusAddress','cusNotes'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('formError').style.display = 'none';
+    }
+
+    // Edit
+    window.editCustomer = function(id) {
+      const c = allCustomers.find(c => c.id === id);
+      if (!c) return;
+      document.getElementById('modalTitle').textContent = 'Edit Customer';
+      document.getElementById('saveBtnText').textContent = 'Update Customer';
+      document.getElementById('cusId').value = c.id;
+      document.getElementById('cusName').value = c.name || '';
+      document.getElementById('cusPhone').value = c.phone || '';
+      document.getElementById('cusEmail').value = c.email || '';
+      document.getElementById('cusDob').value = c.dob || '';
+      document.getElementById('cusAddress').value = c.address || '';
+      document.getElementById('cusNotes').value = c.notes || '';
+      document.getElementById('modalOverlay').classList.add('show');
+    };
+
+    // Save
+    document.getElementById('saveCus').addEventListener('click', async () => {
+      const id = document.getElementById('cusId').value;
+      const name = document.getElementById('cusName').value.trim();
+      const phone = document.getElementById('cusPhone').value.trim();
+      const email = document.getElementById('cusEmail').value.trim();
+      const dob = document.getElementById('cusDob').value;
+      const address = document.getElementById('cusAddress').value.trim();
+      const notes = document.getElementById('cusNotes').value.trim();
+      const errorEl = document.getElementById('formError');
+
+      if (!name || !phone) {
+        errorEl.textContent = 'Name and phone number are required.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      document.getElementById('saveBtnText').textContent = 'Saving...';
+      document.getElementById('saveSpinner').style.display = 'inline-block';
+      document.getElementById('saveCus').disabled = true;
+
+      try {
+        const data = { name, phone, email, dob, address, notes, updatedAt: serverTimestamp() };
+        if (id) {
+          await updateDoc(doc(db, 'customers', id), data);
+        } else {
+          data.createdAt = serverTimestamp();
+          await addDoc(collection(db, 'customers'), data);
+        }
+        closeModal();
+        await loadData();
+      } catch (err) {
+        errorEl.textContent = 'Error: ' + err.message;
+        errorEl.style.display = 'block';
+      } finally {
+        document.getElementById('saveBtnText').textContent = 'Save Customer';
+        document.getElementById('saveSpinner').style.display = 'none';
+        document.getElementById('saveCus').disabled = false;
+      }
+    });
+
+    // Delete
+    window.deleteCustomer = function(id, name) {
+      deleteTargetId = id;
+      document.getElementById('deleteCusName').textContent = name;
+      document.getElementById('deleteOverlay').classList.add('show');
+    };
+
+    document.getElementById('confirmDelete').addEventListener('click', async () => {
+      if (!deleteTargetId) return;
+      try {
+        await deleteDoc(doc(db, 'customers', deleteTargetId));
+        document.getElementById('deleteOverlay').classList.remove('show');
+        await loadData();
+      } catch (err) {
+        alert('
