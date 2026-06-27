@@ -44,8 +44,65 @@
         <i class="fa-solid fa-spinner fa-spin" id="btnSpinner" style="display:none"></i>
       </button>
 
+      <div class="demo-divider">
+        <span>or</span>
+      </div>
+
+      <button class="demo-btn" id="demoBtn">
+        <i class="fa-solid fa-eye"></i>
+        <span id="demoBtnText">Try Demo Access</span>
+        <i class="fa-solid fa-spinner fa-spin" id="demoSpinner" style="display:none"></i>
+      </button>
+
+      <p class="demo-note">Demo mode — view only, no real data affected</p>
+
     </div>
   </div>
+
+  <style>
+    .demo-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 16px 0 12px;
+      color: #888;
+      font-size: 13px;
+    }
+    .demo-divider::before,
+    .demo-divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #333;
+    }
+    .demo-divider span {
+      padding: 0 10px;
+    }
+    .demo-btn {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      border: 1.5px solid #e74c3c;
+      color: #e74c3c;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .demo-btn:hover {
+      background: #e74c3c;
+      color: #fff;
+    }
+    .demo-note {
+      text-align: center;
+      font-size: 12px;
+      color: #888;
+      margin-top: 8px;
+    }
+  </style>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -63,6 +120,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    // Toggle password visibility
     document.getElementById('togglePw').addEventListener('click', () => {
       const pw = document.getElementById('password');
       const icon = document.getElementById('togglePw');
@@ -75,24 +133,14 @@
       }
     });
 
-    document.getElementById('loginBtn').addEventListener('click', async () => {
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
+    // Reusable login function
+    async function loginWithCredentials(email, password, btnText, btnSpinner, btn) {
       const errorMsg = document.getElementById('errorMsg');
-      const btnText = document.getElementById('btnText');
-      const btnSpinner = document.getElementById('btnSpinner');
-
       errorMsg.style.display = 'none';
-
-      if (!email || !password) {
-        errorMsg.textContent = 'Please fill in all fields.';
-        errorMsg.style.display = 'block';
-        return;
-      }
 
       btnText.textContent = 'Signing in...';
       btnSpinner.style.display = 'inline-block';
-      document.getElementById('loginBtn').disabled = true;
+      btn.disabled = true;
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
@@ -107,10 +155,41 @@
         errorMsg.textContent = msg;
         errorMsg.style.display = 'block';
       } finally {
-        btnText.textContent = 'Sign In';
+        btnText.textContent = btn.id === 'demoBtn' ? 'Try Demo Access' : 'Sign In';
         btnSpinner.style.display = 'none';
-        document.getElementById('loginBtn').disabled = false;
+        btn.disabled = false;
       }
+    }
+
+    // Main login button
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+
+      if (!email || !password) {
+        errorMsg.textContent = 'Please fill in all fields.';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      await loginWithCredentials(
+        email, password,
+        document.getElementById('btnText'),
+        document.getElementById('btnSpinner'),
+        document.getElementById('loginBtn')
+      );
+    });
+
+    // Demo button
+    document.getElementById('demoBtn').addEventListener('click', async () => {
+      await loginWithCredentials(
+        'demo@restaurantadmin.com',
+        'demo1234',
+        document.getElementById('demoBtnText'),
+        document.getElementById('demoSpinner'),
+        document.getElementById('demoBtn')
+      );
     });
   </script>
 
